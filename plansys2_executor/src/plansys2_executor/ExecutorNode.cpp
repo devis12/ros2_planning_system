@@ -45,6 +45,7 @@
 #endif
 
 #include "plansys2_executor/behavior_tree/execute_action_node.hpp"
+#include "plansys2_executor/behavior_tree/action_resolve_ambiguities.hpp"
 #include "plansys2_executor/behavior_tree/wait_action_node.hpp"
 #include "plansys2_executor/behavior_tree/wait_atstart_req_node.hpp"
 #include "plansys2_executor/behavior_tree/check_overall_req_node.hpp"
@@ -364,6 +365,7 @@ ExecutorNode::execute(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
   blackboard->set("problem_client", problem_client_);
 
   BT::BehaviorTreeFactory factory;
+  factory.registerNodeType<ActionResolveAmbiguities>("ResolveAmbiguities");
   factory.registerNodeType<ExecuteAction>("ExecuteAction");
   factory.registerNodeType<WaitAction>("WaitAction");
   factory.registerNodeType<CheckOverAllReq>("CheckOverAllReq");
