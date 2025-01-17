@@ -51,6 +51,21 @@ ProblemExpert::addInstance(const plansys2::Instance & instance)
   }
 }
 
+bool
+ProblemExpert::updateInstance(const plansys2::Instance & instance)
+{
+  for(auto& p_ins : instances_)
+  {
+      if(p_ins.name == instance.name && p_ins.type == instance.type)
+      {
+        p_ins.metainfo = instance.metainfo; // update metainfo: only thing that can actually change!
+        return true;
+      }
+  }
+  
+  return false;
+}
+
 std::vector<plansys2::Instance>
 ProblemExpert::getInstances()
 {
@@ -397,14 +412,14 @@ ProblemExpert::isValidType(const std::string & type)
 }
 
 bool
-ProblemExpert::existInstance(const std::string & name)
+ProblemExpert::existInstance(const std::string & name, const std::string& type)
 {
   bool found = false;
   int i = 0;
 
   while (!found && i < instances_.size()) {
     if (instances_[i].name == name) {
-      found = true;
+      found = type.empty() || instances_[i].type == type;
     }
     i++;
   }

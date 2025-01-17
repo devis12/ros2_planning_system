@@ -38,6 +38,7 @@ public:
 
   std::vector<plansys2::Instance> getInstances();
   bool addInstance(const plansys2::Instance & instance);
+  bool updateInstance(const plansys2::Instance & instance);
   bool removeInstance(const plansys2::Instance & instance);
   std::optional<plansys2::Instance> getInstance(const std::string & name);
 
@@ -64,7 +65,7 @@ public:
   std::string getProblem();
   bool addProblem(const std::string & problem_str);
 
-  bool existInstance(const std::string & name);
+  bool existInstance(const std::string & name, const std::string& type = "");
   bool isValidType(const std::string & type);
   bool isValidPredicate(const plansys2::Predicate & predicate);
   bool isValidFunction(const plansys2::Function & function);

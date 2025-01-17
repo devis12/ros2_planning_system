@@ -44,7 +44,8 @@ public:
   }
 
 private:
-  void send_goal(const std::string& full_action_name);
+  static ResolveAmbiguities::Goal buildGoal(const std::string& full_action_name);
+  void send_goal(const ResolveAmbiguities::Goal& goal);
 
   void goal_response_callback(const ResolveAmbiguitiesGoalHandle::SharedPtr &goal_handle);
 

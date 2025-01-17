@@ -43,16 +43,24 @@ void ActionResolveAmbiguities::reset_client_status()
             rclcpp_action::create_client<ResolveAmbiguities>(node_, "resolve_ambiguities");
 }
 
-void ActionResolveAmbiguities::send_goal(const std::string& full_action_name)
-{
-    resolve_ambiguities_client_->wait_for_action_server();
 
-    
+ResolveAmbiguities::Goal ActionResolveAmbiguities::buildGoal(const std::string& full_action_name)
+{
     auto goal = ResolveAmbiguities::Goal();
-    goal.action_name = full_action_name;
+
+    size_t start = full_action_name.find('(');
+    size_t end = full_action_name.find(')', start);
+
+    if (start != std::string::npos && end != std::string::npos && end > start) 
+    {
+        // Return the content inside the parentheses
+        goal.action_name = full_action_name.substr(start + 1, end - start - 1);
+    }
+    else
+        goal.action_name = full_action_name;
     
     // Split the string into words
-    std::stringstream ss(full_action_name);
+    std::stringstream ss(goal.action_name);
     std::string word;
     
     std::vector<std::string> known_args;
@@ -70,6 +78,12 @@ void ActionResolveAmbiguities::send_goal(const std::string& full_action_name)
             goal.known_arguments.push_back(word);
         }
     }
+    return goal;
+}
+
+void ActionResolveAmbiguities::send_goal(const ResolveAmbiguities::Goal& goal)
+{
+    resolve_ambiguities_client_->wait_for_action_server();
 
     auto options = rclcpp_action::Client<ResolveAmbiguities>::SendGoalOptions();
     options.goal_response_callback = std::bind(&ActionResolveAmbiguities::goal_response_callback, this, _1);
@@ -143,37 +157,58 @@ void ActionResolveAmbiguities::cancel_goal()
 BT::NodeStatus
 ActionResolveAmbiguities::tick()
 {
-  std::string action;
-  getInput("action", action);
+    std::string action;
+    getInput("action", action);
+    std::cout << "Running ActionResolveAmbiguities for " << action << "\n" << std::flush;
 
-  std::cout << "Running ActionResolveAmbiguities for " << action << "\n" << std::flush;
+    auto goal = buildGoal(action);
+    if(goal.ambiguous_arguments.size() == 0)
+        return BT::NodeStatus::SUCCESS; // no ambiguous
 
-  // if(!goal_sent_)
-  // {
-  //   send_goal(action);
-  // }
-  // else
-  // {
-  //   if(response_received_ && !goal_handle_)
-  //   {
-  //     // goal rejected or canceled
-  //     return BT::NodeStatus::FAILURE;
-  //   }
-  //   else if(result_received_)
-  //   {
-  //     // post process result to affect action execution
-  //     if(resolve_ambiguities_result_)
-  //     {
-  //       if(resolve_ambiguities_result_->success)
-  //       {
-  //         // here you have the disambiguated arguments
-  //         resolve_ambiguities_result_->resolved_arguments;
-  //       }
-  //       else
-  //         return BT::NodeStatus::FAILURE;
-  //     }
-  //   }
-  // }
+    std::cout << "Found an Ambiguous ARGUMENT! Actually doing something in ActionResolveAmbiguities for " << action << "\n" << std::flush;
+
+    auto instances = problem_client_->getInstances();
+    
+    for(auto& p_ins : instances)
+    {
+        for(const auto& instance_name : goal.ambiguous_arguments)
+        {
+            if(p_ins.name == instance_name)
+            {
+                p_ins.metainfo = ("デビスは知っています!");
+                // std::cout << "Suppying metainfo " << p_ins.metainfo << " to param " << p_ins.name << "\n" << std::flush;
+                problem_client_->updateInstance(p_ins);
+                break;
+            }
+        }   
+    }
+
+//   if(!goal_sent_)
+//   {
+//     send_goal(goal);
+//   }
+//   else
+//   {
+//     if(response_received_ && !goal_handle_)
+//     {
+//       // goal rejected or canceled
+//       return BT::NodeStatus::FAILURE;
+//     }
+//     else if(result_received_)
+//     {
+//       // post process result to affect action execution
+//       if(resolve_ambiguities_result_)
+//       {
+//         if(resolve_ambiguities_result_->success)
+//         {
+//           // here you have the disambiguated arguments
+//           resolve_ambiguities_result_->resolved_arguments;
+//         }
+//         else
+//           return BT::NodeStatus::FAILURE;
+//       }
+//     }
+//   }
 
   return BT::NodeStatus::SUCCESS;
 }

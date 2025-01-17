@@ -52,6 +52,7 @@ public:
 
   std::vector<plansys2::Instance> getInstances();
   bool addInstance(const plansys2::Instance & instance);
+  bool updateInstance(const plansys2::Instance & instance);
   bool removeInstance(const plansys2::Instance & instance);
   std::optional<plansys2::Instance> getInstance(const std::string & name);
 
@@ -87,6 +88,8 @@ private:
     add_problem_goal_client_;
   rclcpp::Client<plansys2_msgs::srv::AffectParam>::SharedPtr
     add_problem_instance_client_;
+  rclcpp::Client<plansys2_msgs::srv::AffectParam>::SharedPtr
+    upd_problem_instance_metainfo_client_;
   rclcpp::Client<plansys2_msgs::srv::AffectNode>::SharedPtr
     add_problem_predicate_client_;
   rclcpp::Client<plansys2_msgs::srv::AffectNode>::SharedPtr

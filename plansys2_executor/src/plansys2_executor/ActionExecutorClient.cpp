@@ -90,6 +90,9 @@ ActionExecutorClient::on_configure(const rclcpp_lifecycle::State & state)
   status_.action = action_managed_;
   status_.specialized_arguments = specialized_arguments_;
 
+  //problem expert client to communicate with problem expert node of plansys2
+  problem_client_ = std::make_shared<ProblemExpertClient>();
+
   return CallbackReturnT::SUCCESS;
 }
 
@@ -102,6 +105,23 @@ ActionExecutorClient::on_activate(const rclcpp_lifecycle::State & state)
     rate_, std::bind(&ActionExecutorClient::do_work, this));
 
 //  do_work();
+  // Update arguments in the form of psys2 instances
+  if(problem_client_)
+  {
+    const auto instances = problem_client_->getInstances();
+    for(const auto arg : current_arguments_)
+    {
+      for(const auto& psys2_ins : instances)
+      {
+        if(psys2_ins.name == arg) current_arguments_psys2_.push_back(psys2_ins);
+      }
+    }
+  }
+  else
+  {
+    for(const auto& arg:current_arguments_)
+      current_arguments_psys2_.push_back(plansys2::Instance{arg});
+  }
 
   return CallbackReturnT::SUCCESS;
 }
@@ -112,6 +132,8 @@ ActionExecutorClient::on_deactivate(const rclcpp_lifecycle::State & state)
   status_.state = plansys2_msgs::msg::ActionPerformerStatus::READY;
   status_.status_stamp = now();
   timer_ = nullptr;
+
+  current_arguments_psys2_.clear();
 
   return CallbackReturnT::SUCCESS;
 }

@@ -51,6 +51,7 @@ protected:
   virtual void do_work() {}
 
   const std::vector<std::string> & get_arguments() const {return current_arguments_;}
+  const std::vector<plansys2::Instance> & get_psys2_arguments() const {return current_arguments_psys2_;}
   const std::string get_action_name() const {return action_managed_;}
 
   using CallbackReturnT =
@@ -72,6 +73,9 @@ protected:
 
   std::vector<std::string> current_arguments_;
   std::vector<std::string> specialized_arguments_;
+  std::vector<plansys2::Instance> current_arguments_psys2_;
+
+  std::shared_ptr<plansys2::ProblemExpertClient> problem_client_;
 
   rclcpp_lifecycle::LifecyclePublisher<plansys2_msgs::msg::ActionExecution>::SharedPtr
     action_hub_pub_;

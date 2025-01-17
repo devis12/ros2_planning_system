@@ -35,6 +35,8 @@ ProblemExpertClient::ProblemExpertClient()
     "problem_expert/add_problem_goal");
   add_problem_instance_client_ = node_->create_client<plansys2_msgs::srv::AffectParam>(
     "problem_expert/add_problem_instance");
+  upd_problem_instance_metainfo_client_ = node_->create_client<plansys2_msgs::srv::AffectParam>(
+    "problem_expert/upd_problem_instance_metainfo");
   add_problem_predicate_client_ = node_->create_client<plansys2_msgs::srv::AffectNode>(
     "problem_expert/add_problem_predicate");
   add_problem_function_client_ = node_->create_client<plansys2_msgs::srv::AffectNode>(
@@ -156,6 +158,46 @@ ProblemExpertClient::addInstance(const plansys2::Instance & instance)
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       add_problem_instance_client_->get_service_name() << ": " <<
+        result.error_info);
+    return false;
+  }
+}
+
+bool
+ProblemExpertClient::updateInstance(const plansys2::Instance & instance)
+{
+  while (!upd_problem_instance_metainfo_client_->wait_for_service(std::chrono::seconds(5))) {
+    if (!rclcpp::ok()) {
+      return false;
+    }
+    RCLCPP_ERROR_STREAM(
+      node_->get_logger(),
+      upd_problem_instance_metainfo_client_->get_service_name() <<
+        " service  client: waiting for service to appear...");
+  }
+
+  auto request = std::make_shared<plansys2_msgs::srv::AffectParam::Request>();
+  request->param = instance;
+  // request->param.metainfo = instance.metainfo; // TODO better in an equal operator or explore if it is really needed (???)
+
+  // std::cout << "About to upd param " << request->param.name << " - " << request->param.metainfo << "\n" << std::flush;
+  auto future_result = upd_problem_instance_metainfo_client_->async_send_request(request);
+
+  if (rclcpp::spin_until_future_complete(node_, future_result, std::chrono::seconds(1)) !=
+    rclcpp::FutureReturnCode::SUCCESS)
+  {
+    return false;
+  }
+
+  auto result = *future_result.get();
+
+  if (result.success) {
+    update_time_ = node_->now();
+    return true;
+  } else {
+    RCLCPP_ERROR_STREAM(
+      node_->get_logger(),
+      upd_problem_instance_metainfo_client_->get_service_name() << ": " <<
         result.error_info);
     return false;
   }

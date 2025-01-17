@@ -68,6 +68,13 @@ ProblemExpertNode::ProblemExpertNode()
       &ProblemExpertNode::add_problem_instance_service_callback,
       this, std::placeholders::_1, std::placeholders::_2,
       std::placeholders::_3));
+  
+  upd_problem_instance_metainfo_service_ = create_service<plansys2_msgs::srv::AffectParam>(
+    "problem_expert/upd_problem_instance_metainfo",
+    std::bind(
+      &ProblemExpertNode::upd_problem_instance_metainfo_service_callback,
+      this, std::placeholders::_1, std::placeholders::_2,
+      std::placeholders::_3));
 
   add_problem_predicate_service_ = create_service<plansys2_msgs::srv::AffectNode>(
     "problem_expert/add_problem_predicate",
@@ -368,6 +375,28 @@ ProblemExpertNode::add_problem_instance_service_callback(
       knowledge_pub_->publish(*get_knowledge_as_msg());
     } else {
       response->error_info = "Instance not valid";
+    }
+  }
+}
+
+void
+ProblemExpertNode::upd_problem_instance_metainfo_service_callback(
+  const std::shared_ptr<rmw_request_id_t> request_header,
+  const std::shared_ptr<plansys2_msgs::srv::AffectParam::Request> request,
+  const std::shared_ptr<plansys2_msgs::srv::AffectParam::Response> response)
+{
+  if (problem_expert_ == nullptr) {
+    response->success = false;
+    response->error_info = "Requesting service in non-active state";
+    RCLCPP_WARN(get_logger(), "Requesting service in non-active state");
+  } else {
+    // std::cout << "Received request to upd instance " << request->param.name << "," << request->param.type << "," << request->param.metainfo << "\n" << std::flush;
+    response->success = problem_expert_->updateInstance(request->param);
+    if (response->success) {
+      update_pub_->publish(std_msgs::msg::Empty());
+      knowledge_pub_->publish(*get_knowledge_as_msg());
+    } else {
+      response->error_info = "Instance not known";
     }
   }
 }
