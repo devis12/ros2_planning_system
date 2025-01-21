@@ -46,6 +46,7 @@ void ActionResolveAmbiguities::reset_client_status()
 
 ResolveAmbiguities::Goal ActionResolveAmbiguities::buildGoal(const std::string& full_action_name)
 {
+    std::cout << "building goal " << "\n" << std::flush;
     auto goal = ResolveAmbiguities::Goal();
 
     size_t start = full_action_name.find('(');
@@ -78,12 +79,15 @@ ResolveAmbiguities::Goal ActionResolveAmbiguities::buildGoal(const std::string& 
             goal.known_arguments.push_back(word);
         }
     }
+    std::cout << "goal built" << "\n" << std::flush;
     return goal;
 }
 
 void ActionResolveAmbiguities::send_goal(const ResolveAmbiguities::Goal& goal)
 {
+    std::cout << "waiting for action server" << "\n" << std::flush;
     resolve_ambiguities_client_->wait_for_action_server();
+    std::cout << "action server ready" << "\n" << std::flush;
 
     auto options = rclcpp_action::Client<ResolveAmbiguities>::SendGoalOptions();
     options.goal_response_callback = std::bind(&ActionResolveAmbiguities::goal_response_callback, this, _1);
@@ -96,9 +100,9 @@ void ActionResolveAmbiguities::send_goal(const ResolveAmbiguities::Goal& goal)
                                          [](const std::string& a, const std::string& b) {
                                              return a + "," + b;
                                          }).c_str());
-
+    RCLCPP_INFO(node_->get_logger(), "Sending goal: %s", goal.action_name.c_str());
     resolve_ambiguities_client_->async_send_goal(goal, options);
-
+    std::cout << "Sent resolve ambiguities goal " << "\n" << std::flush;
     goal_sent_ = true;
 }
 
@@ -163,54 +167,79 @@ ActionResolveAmbiguities::tick()
 
     auto goal = buildGoal(action);
     if(goal.ambiguous_arguments.size() == 0)
-        return BT::NodeStatus::SUCCESS; // no ambiguous
-
-    std::cout << "Found an Ambiguous ARGUMENT! Actually doing something in ActionResolveAmbiguities for " << action << "\n" << std::flush;
+        {
+            std::cout << "No ambiguous arguments" << "\n" << std::flush;
+            return BT::NodeStatus::SUCCESS; // no ambiguous
+        }        
 
     auto instances = problem_client_->getInstances();
+
+    // TODO REMOVE THIS TEST
+    std::cout << "Found an Ambiguous ARGUMENT! Actually doing something in ActionResolveAmbiguities for " << action << "\n" << std::flush;
+
     
-    for(auto& p_ins : instances)
+    // for(auto& p_ins : instances)
+    // {
+    //     for(const auto& instance_name : goal.ambiguous_arguments)
+    //     {
+    //         if(p_ins.name == instance_name)
+    //         {
+    //             p_ins.metainfo = ("デビスは知っています!");
+    //             std::cout << "Suppying metainfo " << p_ins.metainfo << " to param " << p_ins.name << "\n" << std::flush;
+    //             problem_client_->updateInstance(p_ins);
+    //             break;
+    //         }
+    //     }   
+    // }
+    // END TEST
+
+  // TODO UNCOMMENT BELOW
+  if(!goal_sent_)
+  {
+    send_goal(goal);
+    return BT::NodeStatus::RUNNING;
+  }
+  else
+  {
+    if(response_received_ && !goal_handle_)
     {
-        for(const auto& instance_name : goal.ambiguous_arguments)
-        {
-            if(p_ins.name == instance_name)
-            {
-                p_ins.metainfo = ("デビスは知っています!");
-                // std::cout << "Suppying metainfo " << p_ins.metainfo << " to param " << p_ins.name << "\n" << std::flush;
-                problem_client_->updateInstance(p_ins);
-                break;
-            }
-        }   
+      // goal rejected or canceled
+      return BT::NodeStatus::FAILURE;
     }
+    else if(result_received_)
+    {
+      // post process result to affect action execution
+      if(resolve_ambiguities_result_)
+      {
+        if(resolve_ambiguities_result_->success)
+        {
+          // here you have the disambiguated arguments
+        //   resolve_ambiguities_result_->resolved_arguments;
+          //TODO IMPLEMENT MISSING LOGIC HERE
+            for(auto& p_ins : instances)
+            {
+                for (int idx = 0; idx < goal.ambiguous_arguments.size(); idx++)
+                {
+                    const auto &instance_name = goal.ambiguous_arguments[idx];
+                    if (p_ins.name == instance_name && !resolve_ambiguities_result_->resolved_arguments[idx].empty())
+                    {
+                        p_ins.metainfo = resolve_ambiguities_result_->resolved_arguments[idx];
+                        std::cout << "Supplying metainfo " << p_ins.metainfo << " to param " << p_ins.name << "\n" << std::flush;
+                        problem_client_->updateInstance(p_ins);
+                        break;
+                    }
+                }   
+            }
+        }
+        else
+          return BT::NodeStatus::FAILURE;
+      }
+      return BT::NodeStatus::SUCCESS;
+    }
+    return BT::NodeStatus::RUNNING;
+  }
 
-//   if(!goal_sent_)
-//   {
-//     send_goal(goal);
-//   }
-//   else
-//   {
-//     if(response_received_ && !goal_handle_)
-//     {
-//       // goal rejected or canceled
-//       return BT::NodeStatus::FAILURE;
-//     }
-//     else if(result_received_)
-//     {
-//       // post process result to affect action execution
-//       if(resolve_ambiguities_result_)
-//       {
-//         if(resolve_ambiguities_result_->success)
-//         {
-//           // here you have the disambiguated arguments
-//           resolve_ambiguities_result_->resolved_arguments;
-//         }
-//         else
-//           return BT::NodeStatus::FAILURE;
-//       }
-//     }
-//   }
-
-  return BT::NodeStatus::SUCCESS;
+  
 }
 
 }  // namespace plansys2

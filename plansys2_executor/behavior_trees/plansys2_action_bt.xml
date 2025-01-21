@@ -1,6 +1,7 @@
 <Sequence name="ACTION_ID">
 WAIT_PREV_ACTIONS
   <ResolveAmbiguities action="ACTION_ID"/>
+  <!-- <Raider action="ACTION_ID"/> -->
   <WaitAtStartReq action="ACTION_ID"/>
   <ApplyAtStartEffect action="ACTION_ID"/>
   <ReactiveSequence name="ACTION_ID">
