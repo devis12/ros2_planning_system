@@ -177,21 +177,24 @@ ActionResolveAmbiguities::tick()
     // TODO REMOVE THIS TEST
     std::cout << "Found an Ambiguous ARGUMENT! Actually doing something in ActionResolveAmbiguities for " << action << "\n" << std::flush;
 
-    
-    // for(auto& p_ins : instances)
-    // {
-    //     for(const auto& instance_name : goal.ambiguous_arguments)
-    //     {
-    //         if(p_ins.name == instance_name)
-    //         {
-    //             p_ins.metainfo = ("デビスは知っています!");
-    //             std::cout << "Suppying metainfo " << p_ins.metainfo << " to param " << p_ins.name << "\n" << std::flush;
-    //             problem_client_->updateInstance(p_ins);
-    //             break;
-    //         }
-    //     }   
-    // }
+    int ambiguous_resolved_counter = 0;
+    for (auto &p_ins : instances)
+    {
+        for(const auto& instance_name : goal.ambiguous_arguments)
+        {
+            if(p_ins.name == instance_name && !p_ins.metainfo.empty())
+            {
+              ambiguous_resolved_counter++;
+              break;
+            }
+        }   
+    }
+    if(ambiguous_resolved_counter == goal.ambiguous_arguments.size())
+      return BT::NodeStatus::SUCCESS;
+
     // END TEST
+
+  
 
   // TODO UNCOMMENT BELOW
   if(!goal_sent_)

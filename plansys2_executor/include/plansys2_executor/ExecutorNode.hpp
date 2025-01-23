@@ -74,6 +74,7 @@ protected:
   rclcpp::Node::SharedPtr aux_node_;
 
   bool cancel_plan_requested_;
+  std::mutex goal_handle_mutex_;
   std::optional<plansys2_msgs::msg::Plan> current_plan_;
   std::optional<std::vector<plansys2_msgs::msg::Tree>> ordered_sub_goals_;
 

@@ -299,7 +299,8 @@ ExecutorNode::handle_cancel(
   const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
 {
   RCLCPP_DEBUG(this->get_logger(), "Received request to cancel goal");
-
+  std::cout << "[DEVIS RM THIS] CANCELLING PLAN\n" << std::flush; 
+  std::lock_guard<std::mutex> lock(goal_handle_mutex_);   
   cancel_plan_requested_ = true;
 
   return rclcpp_action::CancelResponse::ACCEPT;
@@ -433,8 +434,16 @@ ExecutorNode::execute(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
       status == BT::NodeStatus::FAILURE;
     }
 
+    {
+      std::lock_guard<std::mutex> lock(goal_handle_mutex_);   
+      if(!cancel_plan_requested_)
+      {
     feedback->action_execution_status = get_feedback_info(action_map);
+        std::cout << "[DEVIS RM THIS] ABOUT TO PUBLISH PLAN EXEC FEEDBACK\n" << std::flush; 
     goal_handle->publish_feedback(feedback);
+        std::cout << "[DEVIS RM THIS] PUBLISHED PLAN EXEC FEEDBACK\n" << std::flush; 
+      }
+    }
 
     dotgraph_msg.data =
       bt_builder.get_dotgraph(
