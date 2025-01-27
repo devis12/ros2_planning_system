@@ -1,0 +1,6 @@
+string action_name # pick_object_for medicine__1 medicine_counter1 Pep
+---
+bool success # True
+string issue_detected # unfeasibility, ambiguity, none
+string explanation # explanation
+---
