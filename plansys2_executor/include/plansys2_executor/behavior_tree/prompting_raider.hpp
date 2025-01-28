@@ -25,10 +25,10 @@ using Raider = plansys2_msgs::action::Raider;
 using RaiderResult = plansys2_msgs::action::Raider_Result;
 using RaiderGoalHandle = rclcpp_action::ClientGoalHandle<Raider>;
  
-class Raider : public BT::ActionNodeBase
+class PromptingRaider : public BT::ActionNodeBase
 {
 public:
-  Raider(
+  PromptingRaider(
     const std::string & xml_tag_name,
     const BT::NodeConfiguration & conf);
  
@@ -40,6 +40,8 @@ public:
     return BT::PortsList(
       {
         BT::InputPort<std::string>("action", "Action whose at end reqs must stop"),
+        BT::OutputPort<std::string>("issue_detected", "Issue detected in Raider check"),
+        BT::OutputPort<std::string>("explanation", "Explanation for the issue detected in Raider check"),
       });
   }
  

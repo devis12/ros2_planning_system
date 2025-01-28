@@ -1,5 +1,5 @@
-#ifndef PLANSYS2_EXECUTOR__BEHAVIOR_TREE__ACTION_RESOLVE_AMBIGUITIES_NODE_HPP_
-#define PLANSYS2_EXECUTOR__BEHAVIOR_TREE__ACTION_RESOLVE_AMBIGUITIES_NODE_HPP_
+#ifndef PLANSYS2_EXECUTOR__BEHAVIOR_TREE__ACTION_RESOLVE_UNFEASIBILITIES_NODE_HPP_
+#define PLANSYS2_EXECUTOR__BEHAVIOR_TREE__ACTION_RESOLVE_UNFEASIBILITIES_NODE_HPP_
 
 #include <map>
 #include <string>
@@ -13,7 +13,7 @@
 
 #include "plansys2_executor/behavior_tree/execute_action_node.hpp"
 
-#include "plansys2_msgs/action/resolve_ambiguities.hpp"
+#include "plansys2_msgs/action/resolve_unfeasibility.hpp"
 
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "rclcpp_action/client.hpp"
@@ -25,10 +25,10 @@ using ResolveAmbiguities = plansys2_msgs::action::ResolveAmbiguities;
 using ResolveAmbiguitiesResult = plansys2_msgs::action::ResolveAmbiguities_Result;
 using ResolveAmbiguitiesGoalHandle = rclcpp_action::ClientGoalHandle<ResolveAmbiguities>;
 
-class ActionResolveAmbiguities : public BT::ActionNodeBase
+class ActionResolveUnfeasibility : public BT::ActionNodeBase
 {
 public:
-  ActionResolveAmbiguities(
+  ActionResolveUnfeasibility(
     const std::string & xml_tag_name,
     const BT::NodeConfiguration & conf);
 
@@ -46,7 +46,7 @@ public:
   }
 
 private:
-  static ResolveAmbiguities::Goal buildGoal(const std::string& full_action_name, const std::string& explanation);
+  static ResolveAmbiguities::Goal buildGoal(const std::string& full_action_name);
   void send_goal(const ResolveAmbiguities::Goal& goal);
 
   void goal_response_callback(const ResolveAmbiguitiesGoalHandle::SharedPtr &goal_handle);
@@ -63,8 +63,8 @@ private:
   std::shared_ptr<std::map<std::string, ActionExecutionInfo>> action_map_;
   std::shared_ptr<plansys2::ProblemExpertClient> problem_client_;
 
-  rclcpp_action::Client<ResolveAmbiguities>::SharedPtr resolve_ambiguities_client_;
-  std::shared_ptr<ResolveAmbiguitiesResult> resolve_ambiguities_result_;
+  rclcpp_action::Client<ResolveAmbiguities>::SharedPtr resolve_unfeasibility_client_;
+  std::shared_ptr<ResolveAmbiguitiesResult> resolve_unfeasibility_result_;
   ResolveAmbiguitiesGoalHandle::SharedPtr goal_handle_;
 
   rclcpp_lifecycle::LifecycleNode::SharedPtr node_;

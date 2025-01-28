@@ -44,7 +44,7 @@ void ActionResolveAmbiguities::reset_client_status()
 }
 
 
-ResolveAmbiguities::Goal ActionResolveAmbiguities::buildGoal(const std::string& full_action_name)
+ResolveAmbiguities::Goal ActionResolveAmbiguities::buildGoal(const std::string& full_action_name, const std::string& explanation)
 {
     std::cout << "building goal " << "\n" << std::flush;
     auto goal = ResolveAmbiguities::Goal();
@@ -79,6 +79,9 @@ ResolveAmbiguities::Goal ActionResolveAmbiguities::buildGoal(const std::string& 
             goal.known_arguments.push_back(word);
         }
     }
+
+    goal.explanation = explanation;
+
     std::cout << "goal built" << "\n" << std::flush;
     return goal;
 }
@@ -165,8 +168,17 @@ ActionResolveAmbiguities::tick()
     getInput("action", action);
     std::cout << "Running ActionResolveAmbiguities for " << action << "\n" << std::flush;
 
-    auto goal = buildGoal(action);
-    if(goal.ambiguous_arguments.size() == 0)
+    std::string issue_detected, explanation;
+    getInput("issue_detected", issue_detected);
+    getInput("explanation", explanation);
+
+    bool no_issue_detected = issue_detected.find("ambiguity") == std::string::npos && issue_detected.find("unfeasibility") == std::string::npos;
+
+
+    std::cout << "Running ActionResolveAmbiguities no_issue_detected " << no_issue_detected << "\n" << std::flush;
+
+    auto goal = buildGoal(action, explanation);
+    if(no_issue_detected && goal.ambiguous_arguments.size() == 0)
         {
             std::cout << "No ambiguous arguments" << "\n" << std::flush;
             return BT::NodeStatus::SUCCESS; // no ambiguous
@@ -189,7 +201,10 @@ ActionResolveAmbiguities::tick()
             }
         }   
     }
-    if(ambiguous_resolved_counter == goal.ambiguous_arguments.size())
+
+
+
+    if(no_issue_detected && ambiguous_resolved_counter == goal.ambiguous_arguments.size())
       return BT::NodeStatus::SUCCESS;
 
     // END TEST

@@ -1,6 +1,7 @@
 string action_name # pick_object_for medicine__1 medicine_counter1 Pep
 string[] known_arguments # medicine_counter1, Pep
 string[] ambiguous_arguments # medicine__1
+string explanation
 ---
 bool success # True
 string[] resolved_arguments # yellow_box

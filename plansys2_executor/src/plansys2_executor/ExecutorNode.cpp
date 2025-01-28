@@ -45,7 +45,6 @@
 #endif
 
 #include "plansys2_executor/behavior_tree/execute_action_node.hpp"
-#include "plansys2_executor/behavior_tree/action_resolve_ambiguities.hpp"
 #include "plansys2_executor/behavior_tree/wait_action_node.hpp"
 #include "plansys2_executor/behavior_tree/wait_atstart_req_node.hpp"
 #include "plansys2_executor/behavior_tree/check_overall_req_node.hpp"
@@ -53,6 +52,10 @@
 #include "plansys2_executor/behavior_tree/check_timeout_node.hpp"
 #include "plansys2_executor/behavior_tree/apply_atstart_effect_node.hpp"
 #include "plansys2_executor/behavior_tree/apply_atend_effect_node.hpp"
+
+#include "plansys2_executor/behavior_tree/action_resolve_ambiguities.hpp"
+// #include "plansys2_executor/behavior_tree/action_resolve_unfeasibilities.hpp"
+#include "plansys2_executor/behavior_tree/prompting_raider.hpp"
 
 namespace plansys2
 {
@@ -366,7 +369,6 @@ ExecutorNode::execute(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
   blackboard->set("problem_client", problem_client_);
 
   BT::BehaviorTreeFactory factory;
-  factory.registerNodeType<ActionResolveAmbiguities>("ResolveAmbiguities");
   factory.registerNodeType<ExecuteAction>("ExecuteAction");
   factory.registerNodeType<WaitAction>("WaitAction");
   factory.registerNodeType<CheckOverAllReq>("CheckOverAllReq");
@@ -375,6 +377,10 @@ ExecutorNode::execute(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
   factory.registerNodeType<ApplyAtStartEffect>("ApplyAtStartEffect");
   factory.registerNodeType<ApplyAtEndEffect>("ApplyAtEndEffect");
   factory.registerNodeType<CheckTimeout>("CheckTimeout");
+
+  factory.registerNodeType<ActionResolveAmbiguities>("TreatAmbiguities");
+  // factory.registerNodeType<ActionResolveUnfeasibilities>("TreatUnfeasibilities");
+  factory.registerNodeType<PromptingRaider>("Raider");
 
   auto bt_xml_tree = bt_builder.get_tree(current_plan_.value());
   auto action_graph = bt_builder.get_graph(current_plan_.value());
@@ -439,9 +445,9 @@ ExecutorNode::execute(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
       if(!cancel_plan_requested_)
       {
     feedback->action_execution_status = get_feedback_info(action_map);
-        std::cout << "[DEVIS RM THIS] ABOUT TO PUBLISH PLAN EXEC FEEDBACK\n" << std::flush; 
+        // std::cout << "[DEVIS RM THIS] ABOUT TO PUBLISH PLAN EXEC FEEDBACK\n" << std::flush; 
     goal_handle->publish_feedback(feedback);
-        std::cout << "[DEVIS RM THIS] PUBLISHED PLAN EXEC FEEDBACK\n" << std::flush; 
+        // std::cout << "[DEVIS RM THIS] PUBLISHED PLAN EXEC FEEDBACK\n" << std::flush; 
       }
     }
 
