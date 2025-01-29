@@ -1,0 +1,5 @@
+string action_name # pick_object_for medicine__1 medicine_counter1 Pep
+string explanation
+---
+bool success # True
+---

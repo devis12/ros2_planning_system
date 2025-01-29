@@ -65,6 +65,7 @@ set(EXECUTOR_SOURCES
   src/plansys2_executor/behavior_tree/apply_atend_effect_node.cpp
 
   src/plansys2_executor/behavior_tree/action_resolve_ambiguities.cpp
+  src/plansys2_executor/behavior_tree/action_resolve_unfeasibilities.cpp
   src/plansys2_executor/behavior_tree/prompting_raider.cpp
 )
 

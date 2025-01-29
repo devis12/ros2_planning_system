@@ -13,7 +13,7 @@
 
 #include "plansys2_executor/behavior_tree/execute_action_node.hpp"
 
-#include "plansys2_msgs/action/resolve_unfeasibility.hpp"
+#include "plansys2_msgs/action/resolve_unfeasibilities.hpp"
 
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "rclcpp_action/client.hpp"
@@ -21,14 +21,14 @@
 namespace plansys2
 {
 
-using ResolveAmbiguities = plansys2_msgs::action::ResolveAmbiguities;
-using ResolveAmbiguitiesResult = plansys2_msgs::action::ResolveAmbiguities_Result;
-using ResolveAmbiguitiesGoalHandle = rclcpp_action::ClientGoalHandle<ResolveAmbiguities>;
+using ResolveUnfeasibilities = plansys2_msgs::action::ResolveUnfeasibilities;
+using ResolveUnfeasibilitiesResult = plansys2_msgs::action::ResolveUnfeasibilities_Result;
+using ResolveUnfeasibilitiesGoalHandle = rclcpp_action::ClientGoalHandle<ResolveUnfeasibilities>;
 
-class ActionResolveUnfeasibility : public BT::ActionNodeBase
+class ActionResolveUnfeasibilities : public BT::ActionNodeBase
 {
 public:
-  ActionResolveUnfeasibility(
+  ActionResolveUnfeasibilities(
     const std::string & xml_tag_name,
     const BT::NodeConfiguration & conf);
 
@@ -46,15 +46,15 @@ public:
   }
 
 private:
-  static ResolveAmbiguities::Goal buildGoal(const std::string& full_action_name);
-  void send_goal(const ResolveAmbiguities::Goal& goal);
+  static ResolveUnfeasibilities::Goal buildGoal(const std::string& full_action_name, const std::string& explanation);
+  void send_goal(const ResolveUnfeasibilities::Goal& goal);
 
-  void goal_response_callback(const ResolveAmbiguitiesGoalHandle::SharedPtr &goal_handle);
+  void goal_response_callback(const ResolveUnfeasibilitiesGoalHandle::SharedPtr &goal_handle);
 
-  void goal_result_callback(const ResolveAmbiguitiesGoalHandle::WrappedResult &result);
+  void goal_result_callback(const ResolveUnfeasibilitiesGoalHandle::WrappedResult &result);
 
-  void goal_feedback_callback(const ResolveAmbiguitiesGoalHandle::SharedPtr &goal_handle,
-      const std::shared_ptr<const ResolveAmbiguities::Feedback> feedback);
+  void goal_feedback_callback(const ResolveUnfeasibilitiesGoalHandle::SharedPtr &goal_handle,
+      const std::shared_ptr<const ResolveUnfeasibilities::Feedback> feedback);
 
   void cancel_goal();
 
@@ -63,9 +63,9 @@ private:
   std::shared_ptr<std::map<std::string, ActionExecutionInfo>> action_map_;
   std::shared_ptr<plansys2::ProblemExpertClient> problem_client_;
 
-  rclcpp_action::Client<ResolveAmbiguities>::SharedPtr resolve_unfeasibility_client_;
-  std::shared_ptr<ResolveAmbiguitiesResult> resolve_unfeasibility_result_;
-  ResolveAmbiguitiesGoalHandle::SharedPtr goal_handle_;
+  rclcpp_action::Client<ResolveUnfeasibilities>::SharedPtr resolve_unfeasibilities_client_;
+  std::shared_ptr<ResolveUnfeasibilitiesResult> resolve_unfeasibilities_result_;
+  ResolveUnfeasibilitiesGoalHandle::SharedPtr goal_handle_;
 
   rclcpp_lifecycle::LifecycleNode::SharedPtr node_;
 

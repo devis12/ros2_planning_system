@@ -1,18 +1,22 @@
 <Sequence name="ACTION_ID">
 WAIT_PREV_ACTIONS
   <TreatAmbiguities action="ACTION_ID" issue_detected="pddl_missing_instance" explanation=""/>
-  <RetryUntilSuccessful num_attempts="3">
-    <Fallback>
+  <RetryUntilSuccessful num_attempts="5">
       <SetBlackboard output_key="issue_detected" value="none" />
       <SetBlackboard output_key="explanation" value="" />
       <Raider action="ACTION_ID" issue_detected="{issue_detected}" explanation="{explanation}"/>
-      <Sequence>
-        <!-- <TreatUnfeasibilities _successIf="explanation != unfeasibility" explanation="{explanation}"/> -->
-        <!-- <TreatAmbiguities _successIf="explanation != ambiguity"  explanation="{explanation}"/>
-        <AlwaysFailure /> -->
-        <AlwaysSuccess/>
-      </Sequence>
-    </Fallback>
+      <Fallback>
+        <CompareStrings first="{issue_detected}" second="none" comparison_op="=="/>
+        <IfThenElse>
+          <CompareStrings first="{issue_detected}" second="ambiguity" comparison_op="=="/>
+          <ForceFailure> 
+            <TreatAmbiguities  explanation="{explanation}"/>
+          <ForceFailure/>
+          <ForceFailure> 
+            <TreatUnfeasibilities  explanation="{explanation}" />
+          <ForceFailure/>
+        </IfThenElse>
+      <Fallback/>
   </RetryUntilSuccessful>
   <WaitAtStartReq action="ACTION_ID"/>
   <ApplyAtStartEffect action="ACTION_ID"/>

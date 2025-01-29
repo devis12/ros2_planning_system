@@ -174,7 +174,6 @@ ActionResolveAmbiguities::tick()
 
     bool no_issue_detected = issue_detected.find("ambiguity") == std::string::npos && issue_detected.find("unfeasibility") == std::string::npos;
 
-
     std::cout << "Running ActionResolveAmbiguities no_issue_detected " << no_issue_detected << "\n" << std::flush;
 
     auto goal = buildGoal(action, explanation);
@@ -182,7 +181,11 @@ ActionResolveAmbiguities::tick()
         {
             std::cout << "No ambiguous arguments" << "\n" << std::flush;
             return BT::NodeStatus::SUCCESS; // no ambiguous
-        }        
+        }
+    else if(issue_detected.find("ambiguity") != std::string::npos)   
+    {
+      
+    }     
 
     auto instances = problem_client_->getInstances();
 

@@ -95,7 +95,7 @@ void PromptingRaider::goal_result_callback(const RaiderGoalHandle::WrappedResult
     }
  
     RCLCPP_INFO(node_->get_logger(), "Raider issue detected: %d [%s]", result.result->success,
-      result.result->issue_detected);
+      result.result->issue_detected.c_str());
  
     raider_result_ = result.result;
     result_received_ = true;

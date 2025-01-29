@@ -53,8 +53,10 @@
 #include "plansys2_executor/behavior_tree/apply_atstart_effect_node.hpp"
 #include "plansys2_executor/behavior_tree/apply_atend_effect_node.hpp"
 
+
+#include "plansys2_executor/behavior_tree/comparison_node.hpp"
 #include "plansys2_executor/behavior_tree/action_resolve_ambiguities.hpp"
-// #include "plansys2_executor/behavior_tree/action_resolve_unfeasibilities.hpp"
+#include "plansys2_executor/behavior_tree/action_resolve_unfeasibilities.hpp"
 #include "plansys2_executor/behavior_tree/prompting_raider.hpp"
 
 namespace plansys2
@@ -369,6 +371,10 @@ ExecutorNode::execute(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
   blackboard->set("problem_client", problem_client_);
 
   BT::BehaviorTreeFactory factory;
+
+
+  factory.registerNodeType<BT::ComparisonNode<std::string>>("CompareStrings");
+
   factory.registerNodeType<ExecuteAction>("ExecuteAction");
   factory.registerNodeType<WaitAction>("WaitAction");
   factory.registerNodeType<CheckOverAllReq>("CheckOverAllReq");
@@ -379,7 +385,7 @@ ExecutorNode::execute(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
   factory.registerNodeType<CheckTimeout>("CheckTimeout");
 
   factory.registerNodeType<ActionResolveAmbiguities>("TreatAmbiguities");
-  // factory.registerNodeType<ActionResolveUnfeasibilities>("TreatUnfeasibilities");
+  factory.registerNodeType<ActionResolveUnfeasibilities>("TreatUnfeasibilities");
   factory.registerNodeType<PromptingRaider>("Raider");
 
   auto bt_xml_tree = bt_builder.get_tree(current_plan_.value());
