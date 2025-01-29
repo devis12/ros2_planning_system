@@ -2,21 +2,23 @@
 WAIT_PREV_ACTIONS
   <TreatAmbiguities action="ACTION_ID" issue_detected="pddl_missing_instance" explanation=""/>
   <RetryUntilSuccessful num_attempts="5">
-      <SetBlackboard output_key="issue_detected" value="none" />
-      <SetBlackboard output_key="explanation" value="" />
-      <Raider action="ACTION_ID" issue_detected="{issue_detected}" explanation="{explanation}"/>
-      <Fallback>
-        <CompareStrings first="{issue_detected}" second="none" comparison_op="=="/>
-        <IfThenElse>
-          <CompareStrings first="{issue_detected}" second="ambiguity" comparison_op="=="/>
-          <ForceFailure> 
-            <TreatAmbiguities  explanation="{explanation}"/>
-          <ForceFailure/>
-          <ForceFailure> 
-            <TreatUnfeasibilities  explanation="{explanation}" />
-          <ForceFailure/>
-        </IfThenElse>
-      <Fallback/>
+      <Sequence>
+        <SetBlackboard output_key="issue_detected" value="none" />
+        <SetBlackboard output_key="explanation" value="" />
+        <Raider action="ACTION_ID" issue_detected="{issue_detected}" explanation="{explanation}"/>
+        <Fallback>
+          <CompareStrings first="{issue_detected}" second="none" comparison_op="=="/>
+          <IfThenElse>
+            <CompareStrings first="{issue_detected}" second="ambiguity" comparison_op="=="/>
+            <ForceFailure> 
+              <TreatAmbiguities  explanation="{explanation}"/>
+            </ForceFailure>
+            <ForceFailure> 
+              <TreatUnfeasibilities  explanation="{explanation}" />
+            </ForceFailure>
+          </IfThenElse>
+        </Fallback>
+      </Sequence>
   </RetryUntilSuccessful>
   <WaitAtStartReq action="ACTION_ID"/>
   <ApplyAtStartEffect action="ACTION_ID"/>
