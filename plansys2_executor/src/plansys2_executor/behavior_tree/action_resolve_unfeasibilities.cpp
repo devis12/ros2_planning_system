@@ -132,24 +132,24 @@ void ActionResolveUnfeasibilities::cancel_goal()
 BT::NodeStatus
 ActionResolveUnfeasibilities::tick()
 {
-    std::string action;
-    getInput("action", action);
-    // std::cout << "Running ActionResolveUnfeasibilities for " << action << "\n" << std::flush;
+  std::string action;
+  getInput("action", action);
+  // std::cout << "Running ActionResolveUnfeasibilities for " << action << "\n" << std::flush;
 
-    std::string issue_detected, explanation;
-    getInput("issue_detected", issue_detected);
-    getInput("explanation", explanation);
+  std::string issue_detected, explanation;
+  getInput("issue_detected", issue_detected);
+  getInput("explanation", explanation);
 
-    bool no_issue_detected = issue_detected.find("ambiguity") == std::string::npos && issue_detected.find("unfeasibility") == std::string::npos;
+  bool no_issue_detected = issue_detected.find("ambiguity") == std::string::npos && issue_detected.find("unfeasibility") == std::string::npos;
 
-    std::cout << "Running ActionResolveUnfeasibilities no_issue_detected " << no_issue_detected << "\n" << std::flush;
-
-    auto goal = buildGoal(action, explanation);
-    if(no_issue_detected)
-        {
-            std::cout << "No unfeasibility" << "\n" << std::flush;
-            return BT::NodeStatus::SUCCESS; // no ambiguous
-        }  
+  // std::cout << "Running ActionResolveUnfeasibilities no_issue_detected " << no_issue_detected << "\n" << std::flush;
+  // std::cout << "THE ISSUE DETECTED ISSSSSSSS: " << issue_detected << "\n" << std::flush;
+  auto goal = buildGoal(action, explanation);
+  if(no_issue_detected)
+    {
+      std::cout << "No unfeasibility" << "\n" << std::flush;
+      return BT::NodeStatus::SUCCESS; // no ambiguous
+    }  
 
   // TODO UNCOMMENT BELOW
   if(!goal_sent_)
@@ -169,10 +169,14 @@ ActionResolveUnfeasibilities::tick()
       // post process result to affect action execution
       if(resolve_unfeasibilities_result_)
       {
-        if(!resolve_unfeasibilities_result_->success)
+        if(resolve_unfeasibilities_result_->success)
+        {
+          std::cout << "Unfeasibility resolved successfully" << "\n" << std::flush;
+          return BT::NodeStatus::SUCCESS;
+        }
+        else
           return BT::NodeStatus::FAILURE;
       }
-      return BT::NodeStatus::SUCCESS;
     }
     return BT::NodeStatus::RUNNING;
   }

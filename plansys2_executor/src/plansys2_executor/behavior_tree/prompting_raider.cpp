@@ -57,12 +57,11 @@ Raider::Goal PromptingRaider::buildGoal(const std::string& full_action_name)
     if (start != std::string::npos && end != std::string::npos && end > start) 
     {
         // Return the content inside the parentheses
-        action = full_action_name.substr(start + 1, end - start - 1);
+        goal.action_name = full_action_name.substr(start + 1, end - start - 1);
     }
     else
-        action = full_action_name;
-    goal.action_name = action;
-
+        goal.action_name = full_action_name;
+    
     // // Split the string into words and store the first word as the action name
     // std::stringstream ss(action);
     // std::string word;
@@ -170,7 +169,7 @@ PromptingRaider::tick()
             {
                 if(raider_result_->success)
                 {
-
+                    setOutput("issue_detected", raider_result_->issue_detected);
                     std::cout << "Raider returned issue: " << raider_result_->issue_detected << " ; with explanation: " << raider_result_->explanation << "\n"
                               << std::flush;
                 }

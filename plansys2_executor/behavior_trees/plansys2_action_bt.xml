@@ -5,16 +5,16 @@ WAIT_PREV_ACTIONS
       <Sequence>
         <SetBlackboard output_key="issue_detected" value="none" />
         <SetBlackboard output_key="explanation" value="" />
-        <Raider action="ACTION_ID" issue_detected="{issue_detected}" explanation="{explanation}"/>
+        <Raider action="ACTION_ID" issue_detected="${issue_detected}" explanation="${explanation}"/>
         <Fallback>
-          <CompareStrings first="{issue_detected}" second="none" comparison_op="=="/>
+          <CompareStrings first="${issue_detected}" second="none" comparison_op="=="/>
           <IfThenElse>
-            <CompareStrings first="{issue_detected}" second="ambiguity" comparison_op="=="/>
+            <CompareStrings first="${issue_detected}" second="ambiguity" comparison_op="=="/>
             <ForceFailure> 
-              <TreatAmbiguities  explanation="{explanation}"/>
+              <TreatAmbiguities  explanation="${explanation}"/>
             </ForceFailure>
             <ForceFailure> 
-              <TreatUnfeasibilities action="ACTION_ID" issue_detected="{issue_detected}" explanation="{explanation}" />
+              <TreatUnfeasibilities action="ACTION_ID" issue_detected="${issue_detected}" explanation="${explanation}" />
             </ForceFailure>
           </IfThenElse>
         </Fallback>
