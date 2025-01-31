@@ -46,7 +46,7 @@ void ActionResolveUnfeasibilities::reset_client_status()
 
 ResolveUnfeasibilities::Goal ActionResolveUnfeasibilities::buildGoal(const std::string& full_action_name, const std::string& explanation)
 {
-    std::cout << "building goal " << "\n" << std::flush;
+    // std::cout << "building goal " << "\n" << std::flush;
     auto goal = ResolveUnfeasibilities::Goal();
 
     size_t start = full_action_name.find('(');
@@ -62,7 +62,7 @@ ResolveUnfeasibilities::Goal ActionResolveUnfeasibilities::buildGoal(const std::
 
     goal.explanation = explanation;
 
-    std::cout << "goal built" << "\n" << std::flush;
+    // std::cout << "goal built" << "\n" << std::flush;
     return goal;
 }
 
@@ -134,7 +134,7 @@ ActionResolveUnfeasibilities::tick()
 {
     std::string action;
     getInput("action", action);
-    std::cout << "Running ActionResolveUnfeasibilities for " << action << "\n" << std::flush;
+    // std::cout << "Running ActionResolveUnfeasibilities for " << action << "\n" << std::flush;
 
     std::string issue_detected, explanation;
     getInput("issue_detected", issue_detected);

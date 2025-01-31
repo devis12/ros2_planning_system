@@ -14,7 +14,7 @@ WAIT_PREV_ACTIONS
               <TreatAmbiguities  explanation="{explanation}"/>
             </ForceFailure>
             <ForceFailure> 
-              <TreatUnfeasibilities  explanation="{explanation}" />
+              <TreatUnfeasibilities action="ACTION_ID" issue_detected="{issue_detected}" explanation="{explanation}" />
             </ForceFailure>
           </IfThenElse>
         </Fallback>

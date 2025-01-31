@@ -46,9 +46,34 @@ void PromptingRaider::reset_client_status()
  
 Raider::Goal PromptingRaider::buildGoal(const std::string& full_action_name)
 {
+    // std::cout << "building goal " << "\n" << std::flush;
     auto goal = Raider::Goal();
+
+    size_t start = full_action_name.find('(');
+    size_t end = full_action_name.find(')', start);
+
+    std::string action;
+
+    if (start != std::string::npos && end != std::string::npos && end > start) 
+    {
+        // Return the content inside the parentheses
+        action = full_action_name.substr(start + 1, end - start - 1);
+    }
+    else
+        action = full_action_name;
+    goal.action_name = action;
+
+    // // Split the string into words and store the first word as the action name
+    // std::stringstream ss(action);
+    // std::string word;
+
+    // // Get the first word (action name)
+    // if (ss >> word) {
+    //     goal.action_name = word;
+    // }
  
     // CALL RAIDER
+    // std::cout << "goal built" << "\n" << std::flush;
     return goal;
 }
  
@@ -94,8 +119,8 @@ void PromptingRaider::goal_result_callback(const RaiderGoalHandle::WrappedResult
         RCLCPP_WARN(node_->get_logger(), "Raider: Canceled");
     }
  
-    RCLCPP_INFO(node_->get_logger(), "Raider issue detected: %d [%s]", result.result->success,
-      result.result->issue_detected.c_str());
+    RCLCPP_INFO(node_->get_logger(), "Raider issue detected: %d [%s]. Raider explanation provided: %s", result.result->success,
+      result.result->issue_detected.c_str(), result.result->explanation.c_str());
  
     raider_result_ = result.result;
     result_received_ = true;
@@ -123,7 +148,40 @@ PromptingRaider::tick()
 {
     std::string action;
     getInput("action", action);
-    std::cout << "Running Raider for " << action << "\n" << std::flush;
+    // std::cout << "Running Raider for " << action << "\n" << std::flush;
+
+    auto goal = buildGoal(action);
+
+    if(!goal_sent_)
+    {
+        send_goal(goal);
+        return BT::NodeStatus::RUNNING;
+    }
+    else
+    {
+        if(response_received_ && !goal_handle_)
+        {
+        // goal rejected or canceled
+        return BT::NodeStatus::FAILURE;
+        }
+        else if(result_received_)
+        {
+            if(raider_result_)
+            {
+                if(raider_result_->success)
+                {
+
+                    std::cout << "Raider returned issue: " << raider_result_->issue_detected << " ; with explanation: " << raider_result_->explanation << "\n"
+                              << std::flush;
+                }
+                else
+                    return BT::NodeStatus::FAILURE;
+            }
+            return BT::NodeStatus::SUCCESS;
+        }
+        return BT::NodeStatus::RUNNING;
+    }
+
     return BT::NodeStatus::SUCCESS;
 }
 
