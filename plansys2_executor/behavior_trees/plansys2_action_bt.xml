@@ -11,7 +11,7 @@ WAIT_PREV_ACTIONS
           <IfThenElse>
             <CompareStrings first="${issue_detected}" second="ambiguity" comparison_op="=="/>
             <ForceFailure> 
-              <TreatAmbiguities  explanation="${explanation}"/>
+              <TreatAmbiguities action="ACTION_ID" issue_detected="${issue_detected}" explanation="${explanation}"/>
             </ForceFailure>
             <ForceFailure> 
               <TreatUnfeasibilities action="ACTION_ID" issue_detected="${issue_detected}" explanation="${explanation}" />

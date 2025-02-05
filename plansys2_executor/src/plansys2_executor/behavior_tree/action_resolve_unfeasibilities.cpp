@@ -148,10 +148,9 @@ ActionResolveUnfeasibilities::tick()
   if(no_issue_detected)
     {
       std::cout << "No unfeasibility" << "\n" << std::flush;
-      return BT::NodeStatus::SUCCESS; // no ambiguous
+      return BT::NodeStatus::SUCCESS; // no unfeasibility
     }  
 
-  // TODO UNCOMMENT BELOW
   if(!goal_sent_)
   {
     send_goal(goal);
@@ -172,6 +171,7 @@ ActionResolveUnfeasibilities::tick()
         if(resolve_unfeasibilities_result_->success)
         {
           std::cout << "Unfeasibility resolved successfully" << "\n" << std::flush;
+          reset_client_status();
           return BT::NodeStatus::SUCCESS;
         }
         else

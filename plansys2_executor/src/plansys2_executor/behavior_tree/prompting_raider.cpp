@@ -158,30 +158,34 @@ PromptingRaider::tick()
     }
     else
     {
-        if(response_received_ && !goal_handle_)
+        if(response_received_)
         {
-        // goal rejected or canceled
-        return BT::NodeStatus::FAILURE;
-        }
-        else if(result_received_)
-        {
-            if(raider_result_)
+            BT::NodeStatus ret_status = BT::NodeStatus::RUNNING;
+            if (!goal_handle_)
             {
-                if(raider_result_->success)
-                {
-                    setOutput("issue_detected", raider_result_->issue_detected);
-                    std::cout << "Raider returned issue: " << raider_result_->issue_detected << " ; with explanation: " << raider_result_->explanation << "\n"
-                              << std::flush;
-                }
-                else
-                    return BT::NodeStatus::FAILURE;
+                // goal rejected or canceled
+                ret_status = BT::NodeStatus::FAILURE;
             }
-            return BT::NodeStatus::SUCCESS;
+            else if(result_received_)
+            {
+                    if(raider_result_ && raider_result_->success)
+                    {
+                        setOutput("issue_detected", raider_result_->issue_detected);
+                        setOutput("explanation", raider_result_->explanation);
+                        std::cout << "Raider returned issue: " << raider_result_->issue_detected << " ; with explanation: " << raider_result_->explanation << "\n"
+                                  << std::flush;
+                        ret_status = BT::NodeStatus::SUCCESS;
+                        reset_client_status();
+                    }
+                    else
+                        ret_status = BT::NodeStatus::FAILURE; 
+            }
+            
+            return ret_status;
         }
-        return BT::NodeStatus::RUNNING;
     }
 
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::RUNNING;
 }
 
 }  // namespace plansys2
