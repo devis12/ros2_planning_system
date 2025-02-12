@@ -55,6 +55,7 @@
 
 
 #include "plansys2_executor/behavior_tree/comparison_node.hpp"
+#include "plansys2_executor/behavior_tree/math_node.hpp"
 #include "plansys2_executor/behavior_tree/action_resolve_ambiguities.hpp"
 #include "plansys2_executor/behavior_tree/action_resolve_unfeasibilities.hpp"
 #include "plansys2_executor/behavior_tree/prompting_raider.hpp"
@@ -320,6 +321,7 @@ ExecutorNode::execute(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
   cancel_plan_requested_ = false;
 
   current_plan_ = goal_handle->get_goal()->plan;
+  const auto interaction_context = goal_handle->get_goal()->interaction_context;
 
   if (!current_plan_.has_value()) {
     RCLCPP_ERROR(get_logger(), "No plan found");
@@ -369,11 +371,13 @@ ExecutorNode::execute(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
   blackboard->set("node", shared_from_this());
   blackboard->set("domain_client", domain_client_);
   blackboard->set("problem_client", problem_client_);
+  blackboard->set("interaction_context", interaction_context);
 
   BT::BehaviorTreeFactory factory;
 
 
   factory.registerNodeType<BT::ComparisonNode<std::string>>("CompareStrings");
+  factory.registerNodeType<BT::BasicMathNode<int>>("MathOperationInt");
 
   factory.registerNodeType<ExecuteAction>("ExecuteAction");
   factory.registerNodeType<WaitAction>("WaitAction");

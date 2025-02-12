@@ -44,7 +44,7 @@ void PromptingRaider::reset_client_status()
 }
  
  
-Raider::Goal PromptingRaider::buildGoal(const std::string& full_action_name)
+Raider::Goal PromptingRaider::buildGoal(const std::string& full_action_name, const std::vector<plansys2_msgs::msg::InteractionEvent>& interaction_context, const int& counter)
 {
     // std::cout << "building goal " << "\n" << std::flush;
     auto goal = Raider::Goal();
@@ -70,7 +70,10 @@ Raider::Goal PromptingRaider::buildGoal(const std::string& full_action_name)
     // if (ss >> word) {
     //     goal.action_name = word;
     // }
- 
+
+    goal.raider_loop_counter = counter;
+    goal.interaction_context = interaction_context;
+
     // CALL RAIDER
     // std::cout << "goal built" << "\n" << std::flush;
     return goal;
@@ -149,7 +152,20 @@ PromptingRaider::tick()
     getInput("action", action);
     // std::cout << "Running Raider for " << action << "\n" << std::flush;
 
-    auto goal = buildGoal(action);
+    int raider_loop_counter;
+    getInput("raider_loop_counter", raider_loop_counter);
+
+    std::vector<plansys2_msgs::msg::InteractionEvent> interaction_context = {};
+
+    try{
+        interaction_context = config().blackboard->get<std::vector<plansys2_msgs::msg::InteractionEvent>>("interaction_context");
+    }
+    catch(const BT::RuntimeError&)
+    {
+        RCLCPP_ERROR(node_->get_logger(), "Prompting raider cannot access interaction context");
+    }
+
+    auto goal = buildGoal(action, interaction_context, raider_loop_counter);
 
     if(!goal_sent_)
     {

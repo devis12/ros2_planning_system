@@ -41,7 +41,8 @@ public:
       {
         BT::InputPort<std::string>("action", "Action whose at end reqs must stop"),
         BT::InputPort<std::string>("issue_detected", "Issue detected in Raider check"),
-        BT::InputPort<std::string>("explanation", "", "Explanation for the issue detected in Raider check")
+        BT::InputPort<std::string>("explanation", "", "Explanation for the issue detected in Raider check"),
+        BT::InputPort<int>("raider_loop_counter", "Number of times we have tried to resolve an issue for the same action")
       });
   }
 

@@ -139,8 +139,11 @@ ActionResolveUnfeasibilities::tick()
   std::string issue_detected, explanation;
   getInput("issue_detected", issue_detected);
   getInput("explanation", explanation);
+  
+  int raider_loop_counter;
+  getInput("raider_loop_counter", raider_loop_counter);
 
-  bool no_issue_detected = issue_detected.find("ambiguity") == std::string::npos && issue_detected.find("unfeasibility") == std::string::npos;
+  bool no_issue_detected = issue_detected.find("unfeasibility") == std::string::npos;
 
   // std::cout << "Running ActionResolveUnfeasibilities no_issue_detected " << no_issue_detected << "\n" << std::flush;
   // std::cout << "THE ISSUE DETECTED ISSSSSSSS: " << issue_detected << "\n" << std::flush;

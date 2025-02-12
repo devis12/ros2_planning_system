@@ -1,25 +1,31 @@
 <Sequence name="ACTION_ID">
 WAIT_PREV_ACTIONS
   <TreatAmbiguities action="ACTION_ID" issue_detected="pddl_missing_instance" explanation=""/>
-  <RetryUntilSuccessful num_attempts="5">
+  <!-- 0 -->
+  <SetBlackboard output_key="raider_loop_counter" value="0" />
+  <RetryUntilSuccessful num_attempts="6">
       <Sequence>
         <SetBlackboard output_key="issue_detected" value="none" />
         <SetBlackboard output_key="explanation" value="" />
-        <Raider action="ACTION_ID" issue_detected="${issue_detected}" explanation="${explanation}"/>
+        <Raider action="ACTION_ID" issue_detected="${issue_detected}" explanation="${explanation}" raider_loop_counter="${raider_loop_counter}"/>
         <Fallback>
           <CompareStrings first="${issue_detected}" second="none" comparison_op="=="/>
-          <IfThenElse>
-            <CompareStrings first="${issue_detected}" second="ambiguity" comparison_op="=="/>
-            <ForceFailure> 
-              <TreatAmbiguities action="ACTION_ID" issue_detected="${issue_detected}" explanation="${explanation}"/>
-            </ForceFailure>
-            <ForceFailure> 
-              <TreatUnfeasibilities action="ACTION_ID" issue_detected="${issue_detected}" explanation="${explanation}" />
-            </ForceFailure>
-          </IfThenElse>
+          <Sequence>
+            <MathOperationInt first="${raider_loop_counter}" second="1"  operator="+" output="${raider_loop_counter}"/>
+            <IfThenElse>
+              <CompareStrings first="${issue_detected}" second="ambiguity" comparison_op="=="/>
+              <ForceFailure> 
+                <TreatAmbiguities action="ACTION_ID" issue_detected="${issue_detected}" explanation="${explanation}"/>
+              </ForceFailure>
+              <ForceFailure> 
+                <TreatUnfeasibilities action="ACTION_ID" issue_detected="${issue_detected}" explanation="${explanation}" raider_loop_counter="${raider_loop_counter}"/>
+              </ForceFailure>
+            </IfThenElse>
+          </Sequence>
         </Fallback>
       </Sequence>
   </RetryUntilSuccessful>
+
   <WaitAtStartReq action="ACTION_ID"/>
   <ApplyAtStartEffect action="ACTION_ID"/>
   <ReactiveSequence name="ACTION_ID">

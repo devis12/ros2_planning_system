@@ -1,4 +1,6 @@
 string action_name # pick_object_for medicine__1 medicine_counter1 Pep
+InteractionEvent[] interaction_context
+int32 raider_loop_counter
 ---
 bool success # True
 string issue_detected # unfeasibility, ambiguity, none

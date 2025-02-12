@@ -1,4 +1,5 @@
 plansys2_msgs/Plan plan
+InteractionEvent[] interaction_context
 ---
 bool success
 plansys2_msgs/ActionExecutionInfo[] action_execution_status

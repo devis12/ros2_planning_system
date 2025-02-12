@@ -14,6 +14,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ActionExecutionInfo.msg"
   "msg/ActionPerformerStatus.msg"
   "msg/DurativeAction.msg"
+  "msg/InteractionEvent.msg"
   "msg/Knowledge.msg"
   "msg/Node.msg"
   "msg/Param.msg"

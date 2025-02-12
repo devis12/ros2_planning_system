@@ -24,6 +24,7 @@
 #include "plansys2_msgs/srv/get_ordered_sub_goals.hpp"
 #include "plansys2_msgs/srv/get_plan.hpp"
 #include "plansys2_msgs/msg/plan.hpp"
+#include "plansys2_msgs/msg/interaction_event.h"
 #include "plansys2_msgs/msg/tree.hpp"
 
 #include "rclcpp/rclcpp.hpp"
@@ -42,6 +43,7 @@ public:
   explicit ExecutorClient(const std::string & node_name);
 
   bool start_plan_execution(const plansys2_msgs::msg::Plan & plan);
+  bool start_plan_execution(const plansys2_msgs::msg::Plan & plan, const std::vector<plansys2_msgs::msg::InteractionEvent>& interaction_context);
   bool execute_and_check_plan();
   void cancel_plan_execution();
   std::vector<plansys2_msgs::msg::Tree> getOrderedSubGoals();
@@ -71,7 +73,7 @@ private:
     GoalHandleExecutePlan::SharedPtr goal_handle,
     const std::shared_ptr<const ExecutePlan::Feedback> feedback);
 
-  bool on_new_goal_received(const plansys2_msgs::msg::Plan & plan);
+  bool on_new_goal_received(const plansys2_msgs::msg::Plan & plan, const std::vector<plansys2_msgs::msg::InteractionEvent>& interaction_context);
   bool should_cancel_goal();
   void createActionClient();
 };

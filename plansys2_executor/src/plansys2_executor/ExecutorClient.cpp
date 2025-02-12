@@ -64,9 +64,15 @@ ExecutorClient::createActionClient()
 bool
 ExecutorClient::start_plan_execution(const plansys2_msgs::msg::Plan & plan)
 {
+  return start_plan_execution(plan, {});
+}
+
+bool
+ExecutorClient::start_plan_execution(const plansys2_msgs::msg::Plan & plan, const std::vector<plansys2_msgs::msg::InteractionEvent>& interaction_context)
+{
   if (!executing_plan_) {
     createActionClient();
-    auto success = on_new_goal_received(plan);
+    auto success = on_new_goal_received(plan, interaction_context);
 
     if (success) {
       executing_plan_ = true;
@@ -162,10 +168,11 @@ ExecutorClient::execute_and_check_plan()
 
 
 bool
-ExecutorClient::on_new_goal_received(const plansys2_msgs::msg::Plan & plan)
+ExecutorClient::on_new_goal_received(const plansys2_msgs::msg::Plan & plan, const std::vector<plansys2_msgs::msg::InteractionEvent>& interaction_context)
 {
   auto goal = ExecutePlan::Goal();
   goal.plan = plan;
+  goal.interaction_context = interaction_context;
 
   auto send_goal_options = rclcpp_action::Client<ExecutePlan>::SendGoalOptions();
 

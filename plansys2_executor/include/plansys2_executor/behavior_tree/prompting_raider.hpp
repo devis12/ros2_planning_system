@@ -24,7 +24,7 @@ namespace plansys2
 using Raider = plansys2_msgs::action::Raider;
 using RaiderResult = plansys2_msgs::action::Raider_Result;
 using RaiderGoalHandle = rclcpp_action::ClientGoalHandle<Raider>;
- 
+
 class PromptingRaider : public BT::ActionNodeBase
 {
 public:
@@ -40,13 +40,16 @@ public:
     return BT::PortsList(
       {
         BT::InputPort<std::string>("action", "Action whose at end reqs must stop"),
+        BT::InputPort<int>("raider_loop_counter", "Number of times we have tried to resolve an issue for the same action"),
+        // BT::InputPort<std::vector<plansys2_msgs::msg::InteractionEvent>>("interaction_context", "A vector of the natural language interaction events so far occurred"),
+
         BT::OutputPort<std::string>("issue_detected", "Issue detected in Raider check"),
-        BT::OutputPort<std::string>("explanation", "Explanation for the issue detected in Raider check"),
+        BT::OutputPort<std::string>("explanation", "Explanation for the issue detected in Raider check")
       });
   }
  
 private:
-  static Raider::Goal buildGoal(const std::string& full_action_name);
+  static Raider::Goal buildGoal(const std::string& full_action_name, const std::vector<plansys2_msgs::msg::InteractionEvent>& interaction_context, const int& counter);
   void send_goal(const Raider::Goal& goal);
  
   void goal_response_callback(const RaiderGoalHandle::SharedPtr &goal_handle);
@@ -62,7 +65,7 @@ private:
  
   std::shared_ptr<std::map<std::string, ActionExecutionInfo>> action_map_;
   std::shared_ptr<plansys2::ProblemExpertClient> problem_client_;
- 
+
   rclcpp_action::Client<Raider>::SharedPtr raider_client_;
   std::shared_ptr<RaiderResult> raider_result_;
   RaiderGoalHandle::SharedPtr goal_handle_;

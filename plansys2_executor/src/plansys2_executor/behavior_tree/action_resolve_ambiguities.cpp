@@ -172,6 +172,7 @@ ActionResolveAmbiguities::tick()
     getInput("issue_detected", issue_detected);
     getInput("explanation", explanation);
 
+    // bool no_issue_detected = issue_detected.find("ambiguity") == std::string::npos && issue_detected.find("pddl_missing_instance") == std::string::npos;
     bool no_issue_detected = issue_detected.find("ambiguity") == std::string::npos && issue_detected.find("unfeasibility") == std::string::npos;
 
     std::cout << "Running ActionResolveAmbiguities no_issue_detected " << no_issue_detected << "\n" << std::flush;
@@ -182,10 +183,6 @@ ActionResolveAmbiguities::tick()
             std::cout << "No ambiguous arguments" << "\n" << std::flush;
             return BT::NodeStatus::SUCCESS; // no ambiguous
         }
-    else if(issue_detected.find("ambiguity") != std::string::npos)   
-    {
-      
-    }     
 
     auto instances = problem_client_->getInstances();
 
@@ -240,11 +237,15 @@ ActionResolveAmbiguities::tick()
             for(auto& p_ins : instances)
             {
                 for (int idx = 0; idx < goal.ambiguous_arguments.size(); idx++)
-                {
+                { 
                     const auto &instance_name = goal.ambiguous_arguments[idx];
                     if (p_ins.name == instance_name && !resolve_ambiguities_result_->resolved_arguments[idx].empty())
                     {
-                        p_ins.metainfo = resolve_ambiguities_result_->resolved_arguments[idx];
+                        if(p_ins.metainfo.empty())
+                          p_ins.metainfo = resolve_ambiguities_result_->resolved_arguments[idx];
+                        else
+                          p_ins.metainfo += ";" + resolve_ambiguities_result_->resolved_arguments[idx];
+                          
                         std::cout << "Supplying metainfo " << p_ins.metainfo << " to param " << p_ins.name << "\n" << std::flush;
                         problem_client_->updateInstance(p_ins);
                         break;
