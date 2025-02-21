@@ -26,6 +26,7 @@
 #include "plansys2_msgs/msg/plan.hpp"
 #include "plansys2_msgs/msg/interaction_event.h"
 #include "plansys2_msgs/msg/tree.hpp"
+#include "plansys2_msgs/srv/update_interaction_context.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
@@ -52,6 +53,8 @@ public:
   ExecutePlan::Feedback getFeedBack() {return feedback_;}
   std::optional<ExecutePlan::Result> getResult();
 
+  void update_interaction_context(const std::vector<plansys2_msgs::msg::InteractionEvent>& interaction_context);
+
 private:
   rclcpp::Node::SharedPtr node_;
 
@@ -59,6 +62,7 @@ private:
   rclcpp::Client<plansys2_msgs::srv::GetOrderedSubGoals>::SharedPtr
     get_ordered_sub_goals_client_;
   rclcpp::Client<plansys2_msgs::srv::GetPlan>::SharedPtr get_plan_client_;
+  rclcpp::Client<plansys2_msgs::srv::UpdateInteractionContext>::SharedPtr update_interaction_context_client_;
 
   ExecutePlan::Feedback feedback_;
   rclcpp_action::ClientGoalHandle<ExecutePlan>::SharedPtr goal_handle_;

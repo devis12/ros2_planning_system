@@ -44,6 +44,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/IsProblemGoalSatisfied.srv"
   "srv/RemoveProblemGoal.srv"
   "srv/ClearProblemKnowledge.srv"
+  "srv/UpdateInteractionContext.srv"
   "action/ResolveAmbiguities.action"
   "action/ResolveUnfeasibilities.action"
   "action/ExecutePlan.action"

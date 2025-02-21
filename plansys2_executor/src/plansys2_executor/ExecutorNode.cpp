@@ -33,6 +33,8 @@
 #include "plansys2_msgs/msg/action_execution_info.hpp"
 #include "plansys2_msgs/msg/plan.hpp"
 
+#include "plansys2_msgs/srv/update_interaction_context.hpp"
+
 #include "ament_index_cpp/get_package_share_directory.hpp"
 
 #include "behaviortree_cpp_v3/behavior_tree.h"
@@ -112,6 +114,13 @@ ExecutorNode::ExecutorNode()
     std::bind(
       &ExecutorNode::get_plan_service_callback,
       this, std::placeholders::_1, std::placeholders::_2,
+      std::placeholders::_3));
+
+  update_interaction_context_service_ = create_service<plansys2_msgs::srv::UpdateInteractionContext>( 
+    "executor/update_interaction_context", 
+    std::bind( 
+      &ExecutorNode::update_interaction_context_callback, 
+      this, std::placeholders::_1, std::placeholders::_2, 
       std::placeholders::_3));
 }
 
@@ -365,13 +374,13 @@ ExecutorNode::execute(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
   ordered_sub_goals_ = getOrderedSubGoals();
 
   BTBuilder bt_builder(aux_node_, action_bt_xml_);
-  auto blackboard = BT::Blackboard::create();
+  blackboard_ = BT::Blackboard::create();  // Initialize the blackboard
 
-  blackboard->set("action_map", action_map);
-  blackboard->set("node", shared_from_this());
-  blackboard->set("domain_client", domain_client_);
-  blackboard->set("problem_client", problem_client_);
-  blackboard->set("interaction_context", interaction_context);
+  blackboard_->set("action_map", action_map);
+  blackboard_->set("node", shared_from_this());
+  blackboard_->set("domain_client", domain_client_);
+  blackboard_->set("problem_client", problem_client_);
+  blackboard_->set("interaction_context", interaction_context);
 
   BT::BehaviorTreeFactory factory;
 
@@ -406,7 +415,7 @@ ExecutorNode::execute(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
   out << bt_xml_tree;
   out.close();
 
-  auto tree = factory.createTreeFromText(bt_xml_tree, blackboard);
+  auto tree = factory.createTreeFromText(bt_xml_tree, blackboard_);
 
 #ifdef ZMQ_FOUND
   unsigned int publisher_port = this->get_parameter("publisher_port").as_int();
@@ -607,5 +616,19 @@ ExecutorNode::print_execution_info(
     }
   }
 }
+
+void ExecutorNode::update_interaction_context_callback( 
+  const std::shared_ptr<rmw_request_id_t> request_header, 
+  const std::shared_ptr<plansys2_msgs::srv::UpdateInteractionContext::Request> request, 
+  const std::shared_ptr<plansys2_msgs::srv::UpdateInteractionContext::Response> response) 
+  { 
+    if (blackboard_) {  // Check if the blackboard is initialized
+      blackboard_->set("interaction_context", request->interaction_context); 
+      response->success = true; 
+    } else {
+      RCLCPP_ERROR(this->get_logger(), "Blackboard is not initialized");
+      response->success = false;
+    }
+  }
 
 }  // namespace plansys2

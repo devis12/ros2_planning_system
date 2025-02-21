@@ -33,6 +33,8 @@
 #include "plansys2_msgs/srv/get_ordered_sub_goals.hpp"
 #include "plansys2_msgs/msg/plan.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "plansys2_msgs/srv/update_interaction_context.hpp"  
+#include "behaviortree_cpp_v3/blackboard.h" 
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
@@ -96,6 +98,9 @@ protected:
   std::optional<std::vector<plansys2_msgs::msg::Tree>> getOrderedSubGoals();
 
   rclcpp::Service<plansys2_msgs::srv::GetPlan>::SharedPtr get_plan_service_;
+  rclcpp::Service<plansys2_msgs::srv::UpdateInteractionContext>::SharedPtr update_interaction_context_service_;  
+
+  BT::Blackboard::Ptr blackboard_;
 
   rclcpp_action::GoalResponse handle_goal(
     const rclcpp_action::GoalUUID & uuid,
@@ -113,6 +118,11 @@ protected:
 
   void print_execution_info(
     std::shared_ptr<std::map<std::string, ActionExecutionInfo>> exec_info);
+
+  void update_interaction_context_callback(
+    const std::shared_ptr<rmw_request_id_t> request_header,
+    const std::shared_ptr<plansys2_msgs::srv::UpdateInteractionContext::Request> request,
+    const std::shared_ptr<plansys2_msgs::srv::UpdateInteractionContext::Response> response);
 };
 
 }  // namespace plansys2

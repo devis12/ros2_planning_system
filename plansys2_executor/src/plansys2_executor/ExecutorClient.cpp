@@ -38,6 +38,8 @@ ExecutorClient::ExecutorClient()
   get_ordered_sub_goals_client_ = node_->create_client<plansys2_msgs::srv::GetOrderedSubGoals>(
     "executor/get_ordered_sub_goals");
   get_plan_client_ = node_->create_client<plansys2_msgs::srv::GetPlan>("executor/get_plan");
+  update_interaction_context_client_ = node_->create_client<plansys2_msgs::srv::UpdateInteractionContext>(
+    "executor/update_interaction_context");
 }
 
 ExecutorClient::ExecutorClient(const std::string & node_name)
@@ -330,6 +332,29 @@ ExecutorClient::getResult()
     return *result_.result;
   } else {
     return {};
+  }
+}
+
+void ExecutorClient::update_interaction_context(const std::vector<plansys2_msgs::msg::InteractionEvent>& interaction_context)
+{
+  auto request = std::make_shared<plansys2_msgs::srv::UpdateInteractionContext::Request>();
+  request->interaction_context = interaction_context;
+
+  while (!update_interaction_context_client_->wait_for_service(1.0s)) {
+    RCLCPP_WARN(node_->get_logger(), "Waiting for the update_interaction_context service to be available...");
+  }
+
+  auto future = update_interaction_context_client_->async_send_request(request);
+
+  if (rclcpp::spin_until_future_complete(node_, future) == rclcpp::FutureReturnCode::SUCCESS) {
+    auto response = future.get();
+    if (response->success) {
+      // RCLCPP_INFO(node_->get_logger(), "Interaction context updated successfully");
+    } else {
+      RCLCPP_ERROR(node_->get_logger(), "Failed to update interaction context");
+    }
+  } else {
+    RCLCPP_ERROR(node_->get_logger(), "Service call failed");
   }
 }
 
