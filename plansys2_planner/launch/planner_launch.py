@@ -13,8 +13,8 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument, LogInfo
+from launch.substitutions import LaunchConfiguration, TextSubstitution
 from launch_ros.actions import Node
 
 
@@ -26,6 +26,20 @@ def generate_launch_description():
         'namespace',
         default_value='',
         description='Namespace')
+    
+    # log_namespace = LogInfo(
+    #     msg=[
+    #         TextSubstitution(text="In planner_launch, using namespace: "),
+    #         LaunchConfiguration('namespace')
+    #     ]
+    # )
+    
+    # log_params_file = LogInfo(
+    #     msg=[
+    #         TextSubstitution(text="In planner_launch, using parameter file: "),
+    #         LaunchConfiguration('params_file')
+    #     ]
+    # )
 
     # Specify the actions
     planner_cmd = Node(
@@ -40,6 +54,8 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     ld.add_action(declare_namespace_cmd)
+    # ld.add_action(log_params_file) 
+    # ld.add_action(log_namespace)
 
     # Declare the launch options
     ld.add_action(planner_cmd)

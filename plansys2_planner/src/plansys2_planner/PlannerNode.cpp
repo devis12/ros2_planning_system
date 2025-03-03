@@ -52,7 +52,18 @@ PlannerNode::on_configure(const rclcpp_lifecycle::State & state)
 
   RCLCPP_INFO(get_logger(), "[%s] Configuring...", get_name());
 
+  // RCLCPP_INFO(get_logger(), "Node namespace: %s", this->get_namespace());
+
+  // for (const auto &param : list_parameters({}, 10).names) {
+  //   RCLCPP_INFO(get_logger(), "Loaded param: %s", param.c_str());
+  // }
+
   get_parameter("plan_solver_plugins", solver_ids_);
+  if (!solver_ids_.empty()) {
+      RCLCPP_INFO(get_logger(), "Plan solver plugins set to: %s", solver_ids_[0].c_str());
+  } else {
+      RCLCPP_WARN(get_logger(), "Plan solver plugins is empty.");
+  }
 
   if (!solver_ids_.empty()) {
     if (solver_ids_ == default_ids_) {

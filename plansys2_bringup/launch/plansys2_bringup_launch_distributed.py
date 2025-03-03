@@ -17,9 +17,9 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, LogInfo
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, TextSubstitution
 from launch_ros.actions import Node
 
 
@@ -45,6 +45,13 @@ def generate_launch_description():
         'params_file',
         default_value=os.path.join(bringup_dir, 'params', 'plansys2_params.yaml'),
         description='Full path to the ROS2 parameters file to use for all launched nodes')
+    
+    # log_params_file = LogInfo(
+    #     msg=[
+    #         TextSubstitution(text="Using parameter file: "),
+    #         LaunchConfiguration('params_file')
+    #     ]
+    # )
 
     declare_default_bt_file_cmd = DeclareLaunchArgument(
         'default_action_bt_xml_filename',
@@ -111,6 +118,7 @@ def generate_launch_description():
     ld.add_action(declare_default_bt_file_cmd)
     ld.add_action(declare_namespace_cmd)
     ld.add_action(declare_params_file_cmd)
+    # ld.add_action(log_params_file) 
 
     # Declare the launch options
     ld.add_action(domain_expert_cmd)

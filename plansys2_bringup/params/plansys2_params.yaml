@@ -1,7 +1,9 @@
-planner:
+/tiago_agent/planner:
   ros__parameters:
-    plan_solver_plugins: ["POPF"]
+    plan_solver_plugins: ["LLM"]
     POPF:
       plugin: "plansys2/POPFPlanSolver"
     TFD:
       plugin: "plansys2/TFDPlanSolver"
+    LLM:
+      plugin: "plansys2/LMOLMPlanSolver"
