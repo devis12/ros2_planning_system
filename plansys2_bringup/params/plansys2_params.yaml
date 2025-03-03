@@ -6,4 +6,4 @@
     TFD:
       plugin: "plansys2/TFDPlanSolver"
     LLM:
-      plugin: "plansys2/LMOLMPlanSolver"
+      plugin: "plansys2/LLMPlanSolver"
